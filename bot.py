@@ -1,6 +1,6 @@
 import discord
 
-TEST = Frue
+TEST = False
 ROLE_MESSAGE_ID = -1
 EMOJI_ROLE_DICT = {
     "🔵": "blue",
