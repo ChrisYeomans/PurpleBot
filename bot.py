@@ -42,8 +42,8 @@ def main():
                         async for message in tc.history(limit=10):
                             if message.author == client.user and message.embeds and "role" in message.embeds[0].title.lower():
                                 ROLE_MESSAGE_ID = message.id
-                            await setup_reaction_message(tc)
-                            break
+                        await setup_reaction_message(tc)
+                        break
                 await create_colour_roles(g)
 
 
