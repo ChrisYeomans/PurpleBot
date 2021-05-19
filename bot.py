@@ -1,6 +1,6 @@
 import discord
 
-TEST = True
+TEST = Frue
 ROLE_MESSAGE_ID = -1
 EMOJI_ROLE_DICT = {
     "🔵": "blue",
@@ -25,7 +25,7 @@ ROLE_COLOURS = {
 }
 
 def main():
-    TOKEN = input()
+    TOKEN = open('token.txt', 'r').read().strip()
     intents = discord.Intents.default()
     intents.members = True 
 
