@@ -3,14 +3,25 @@ import discord
 TEST = True
 ROLE_MESSAGE_ID = -1
 EMOJI_ROLE_DICT = {
-    "👍": "test",
-    "❤️": "heart",
-    "🔥": "fire",
+    "🔵": "blue",
+    "🟤": "brown",
+    "🟢": "green",
+    "🟠": "orange",
+    "🟣": "purple",
+    "🔴": "red",
+    "⚪": "white",
+    "🟡": "yellow",
 }
+
 ROLE_COLOURS = {
-    "test": 0x0c0c0d,
-    "heart": 0xf20f0f,
-    "fire": 0xe88f00,
+    "blue": 0x3884ff,
+    "brown": 0xa0522d,
+    "green": 0x34c431,
+    "orange": 0xe08b2f,
+    "purple": 0xBF55EC,
+    "red": 0xe32727,
+    "white": 0xffffff,
+    "yellow": 0xffc21c,
 }
 
 def main():
@@ -29,7 +40,7 @@ def main():
                 for tc in g.text_channels:
                     if tc.name == "roles":
                         async for message in tc.history(limit=10):
-                            if message.author == client.user and "role" in message.content.lower():
+                            if message.author == client.user and message.embeds and "role" in message.embeds[0].title.lower():
                                 ROLE_MESSAGE_ID = message.id
                                 break
                         await setup_reaction_message(tc)
@@ -82,15 +93,15 @@ def main():
     client.run(TOKEN)
 
 async def setup_reaction_message(tc):
+    global ROLE_MESSAGE_ID
     # Build message
-    reaction_message = f"React to the following to get the relevant role\n"
-    for i in EMOJI_ROLE_DICT:
-        reaction_message += f"{i} {EMOJI_ROLE_DICT[i]}\n"
+    reaction_message = discord.Embed(title="Roles", description=f"React to the following to get the relevant role\n", color=0x000000)
     if ROLE_MESSAGE_ID != -1:
         m = await tc.fetch_message(ROLE_MESSAGE_ID)
-        await m.edit(content = reaction_message)
+        await m.edit(embed=reaction_message)
     else:
-        m = await tc.send(reaction_message)
+        m = await tc.send(embed=reaction_message)
+        ROLE_MESSAGE_ID = m.id
     for i in EMOJI_ROLE_DICT:
         await m.add_reaction(i)
     
