@@ -8,7 +8,7 @@ EMOJI_ROLE_DICT = {
     "🔥": "fire",
 }
 ROLE_COLOURS = {
-    "test": 0x000000,
+    "test": 0x0c0c0d,
     "heart": 0xf20f0f,
     "fire": 0xe88f00,
 }
@@ -97,7 +97,11 @@ async def setup_reaction_message(tc):
 
 async def create_colour_roles(guild):
     for role in ROLE_COLOURS:
-        await guild.create_role(name=role, colour=discord.Colour(ROLE_COLOURS[role]))
+        sr = discord.utils.get(guild.roles, name=role)
+        if sr:
+            await sr.edit(colour=discord.Colour(ROLE_COLOURS[role]))
+        else:
+            await guild.create_role(name=role, colour=discord.Colour(ROLE_COLOURS[role]))
     
 
 if __name__ == "__main__":
