@@ -1,6 +1,7 @@
 import discord
 
-TEST = False
+svr = "purple"
+
 ROLE_MESSAGE_ID = -1
 EMOJI_ROLE_DICT = {
     "🔵": "blue",
@@ -35,17 +36,19 @@ def main():
     @client.event
     async def on_ready():
         global ROLE_MESSAGE_ID
+        global svr
         for g in client.guilds:
-            if TEST or "purple" in g.name.lower():
+            if svr in g.name.lower():
                 for tc in g.text_channels:
                     if tc.name == "roles":
                         async for message in tc.history(limit=10):
                             if message.author == client.user and message.embeds and "role" in message.embeds[0].title.lower():
                                 ROLE_MESSAGE_ID = message.id
+                                await setup_reaction_message(tc)
                                 break
-                        await setup_reaction_message(tc)
-                        break
                 await create_colour_roles(g)
+
+
         
         print("Bot Ready")
         print(ROLE_MESSAGE_ID)
@@ -82,7 +85,7 @@ def main():
     # Only here for testing and fixing stuff
     @client.event
     async def on_message(message):
-        if message.author.guild_permissions.administrator:
+        if message.author.guild_permissions.administrator or message.author.id == 204695987825016832:
             if message.content == "setup_reaction_message":
                 await setup_reaction_message(message.channel)
                 await message.delete()
@@ -107,12 +110,14 @@ async def setup_reaction_message(tc):
     
 
 async def create_colour_roles(guild):
+    pos = len(await guild.fetch_roles()) - 3
     for role in ROLE_COLOURS:
         sr = discord.utils.get(guild.roles, name=role)
         if sr:
-            await sr.edit(colour=discord.Colour(ROLE_COLOURS[role]))
+            await sr.edit(colour=discord.Colour(ROLE_COLOURS[role]), position=pos)
         else:
             await guild.create_role(name=role, colour=discord.Colour(ROLE_COLOURS[role]))
+            await discord.utils.get(guild.roles, name=role).edit(colour=discord.Colour(ROLE_COLOURS[role]), position=pos)
     
 
 if __name__ == "__main__":
