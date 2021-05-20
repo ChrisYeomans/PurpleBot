@@ -1,8 +1,10 @@
-import discord
+import discord, asyncio
 
 svr = "purple"
 
+REACTION_LOCK = asyncio.Lock()
 ROLE_MESSAGE_ID = -1
+ROLE_CHANNEL_ID = -1
 EMOJI_ROLE_DICT = {
     "🔵": "blue",
     "🟤": "brown",
@@ -34,11 +36,13 @@ def main():
     @client.event
     async def on_ready():
         global ROLE_MESSAGE_ID
+        global ROLE_CHANNEL_ID
         global svr
         for g in client.guilds:
             if svr in g.name.lower():
                 for tc in g.text_channels:
                     if tc.name == "roles":
+                        ROLE_CHANNEL_ID = tc.id
                         async for message in tc.history(limit=10):
                             if message.author == client.user and message.embeds and "role" in message.embeds[0].title.lower():
                                 ROLE_MESSAGE_ID = message.id
@@ -55,10 +59,21 @@ def main():
     async def on_raw_reaction_add(payload):
         if payload.message_id == ROLE_MESSAGE_ID:
             user = payload.member
+            user_id = payload.user_id
             if user != client.user:
                 emoji = str(payload.emoji)
                 if emoji in EMOJI_ROLE_DICT:
-                    await user.add_roles(discord.utils.get(user.guild.roles, name=EMOJI_ROLE_DICT[emoji]))
+                    async with REACTION_LOCK:
+                        for e in EMOJI_ROLE_DICT:
+                            e_role = discord.utils.get(user.guild.roles, name=EMOJI_ROLE_DICT[e])
+                            up_user = discord.utils.get(user.guild.members, id=user_id)
+                            if e != emoji and e_role in up_user.roles:
+                                c = user.guild.get_channel(ROLE_CHANNEL_ID)
+                                await (await c.fetch_message(payload.message_id)).remove_reaction(e, user)
+                                await user.remove_roles(discord.utils.get(user.guild.roles, name=EMOJI_ROLE_DICT[e]))
+                            else:
+                                if e == emoji:
+                                    await user.add_roles(discord.utils.get(user.guild.roles, name=EMOJI_ROLE_DICT[emoji]))
 
     @client.event
     async def on_raw_reaction_remove(payload):
