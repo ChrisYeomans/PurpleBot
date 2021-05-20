@@ -1,6 +1,6 @@
 import discord, asyncio
 
-svr = "purple"
+svr = "test"
 
 REACTION_LOCK = asyncio.Lock()
 ROLE_MESSAGE_ID = -1
@@ -56,6 +56,7 @@ def main():
     async def on_member_join(member):
         tc = discord.utils.get(member.guild.text_channels, name="secret-documents")
         await tc.send(member.name + " has joined the server")
+        await member.add_roles(discord.utils.get(member.guild.roles, name="Hard Working Employees"))
 
     @client.event
     async def on_member_remove(member):
