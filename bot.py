@@ -48,13 +48,20 @@ def main():
                                 ROLE_MESSAGE_ID = message.id
                         await setup_reaction_message(tc)
                         break
-                await create_colour_roles(g)
-
-
-        
+                await create_colour_roles(g)    
         print("Bot Ready")
         print(ROLE_MESSAGE_ID)
     
+    @client.event
+    async def on_member_join(member):
+        tc = discord.utils.get(member.guild.text_channels, name="secret-documents")
+        await tc.send(member.name + " has joined the server")
+
+    @client.event
+    async def on_member_remove(member):
+        tc = discord.utils.get(member.guild.text_channels, name="secret-documents")
+        await tc.send(member.name + " has left the server")
+
     @client.event
     async def on_raw_reaction_add(payload):
         if payload.message_id == ROLE_MESSAGE_ID:
